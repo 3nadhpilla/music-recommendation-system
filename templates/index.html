@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Emotion-Based Music Recommender</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to right, #2c3e50, #4ca1af);
+      color: #fff;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    h2 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-container {
+      background-color: rgba(0, 0, 0, 0.3);
+      padding: 2rem;
+      border-radius: 1rem;
+      max-width: 500px;
+      margin: auto;
+    }
+
+    input, select {
+      padding: 0.6rem;
+      border: none;
+      border-radius: 0.5rem;
+      margin: 0.5rem 0;
+      width: 100%;
+    }
+
+    button {
+      padding: 0.7rem 1.2rem;
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #2ecc71;
+    }
+
+    #video {
+      border-radius: 1rem;
+      margin: 1rem 0;
+    }
+
+    .song-card {
+      background-color: rgba(255, 255, 255, 0.1);
+      margin: 1rem auto;
+      padding: 1rem;
+      border-radius: 1rem;
+      width: 90%;
+      max-width: 600px;
+      text-align: left;
+    }
+
+    .song-card a {
+      color: #f1c40f;
+      text-decoration: none;
+    }
+
+    #loader {
+      display: none;
+      font-size: 1.2rem;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h2>🎧 Emotion-Based Music Recommender</h2>
+  <div class="form-container">
+    <label for="lang">Select Language:</label><br>
+    <select id="lang">
+      <option value="en">English</option>
+      <option value="hi">Hindi</option>
+      <option value="te">Telugu</option>
+      <option value="ta">Tamil</option>
+      <option value="kn">Kannada</option>
+      <option value="ml">Malayalam</option>
+      <option value="bn">Bengali</option>
+      <option value="mr">Marathi</option>
+      <option value="gu">Gujarati</option>
+    </select><br>
+
+    <input id="artist" placeholder="Favorite Artist" />
+    
+    <video id="video" width="100%" autoplay></video>
+    <br>
+    <button onclick="capture()">📸 Capture Emotion</button>
+    <p id="loader">🌀 Processing image and recommending songs...</p>
+    <canvas id="canvas" style="display:none;"></canvas>
+  </div>
+
+  <div id="response"></div>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const responseText = document.getElementById('response');
+    const loader = document.getElementById('loader');
+
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        video.srcObject = stream;
+      });
+
+    function capture() {
+      const context = canvas.getContext('2d');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0);
+      const imgData = canvas.toDataURL('image/jpeg');
+      const lang = document.getElementById('lang').value;
+      const artist = document.getElementById('artist').value;
+
+      loader.style.display = 'block';
+      responseText.innerHTML = "";
+
+      fetch('/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: imgData, language: lang, artist: artist })
+      })
+      .then(res => res.json())
+      .then(data => {
+        loader.style.display = 'none';
+        if (data.error) {
+          responseText.innerHTML = `<p style="color: red;">${data.error}</p>`;
+          return;
+        }
+
+        responseText.innerHTML = `<h3>🧠 Detected Emotion: <span style="color:#f1c40f;">${data.emotion}</span> (confidence: ${(data.confidence * 100).toFixed(1)}%)</h3>`;
+
+        data.tracks.forEach(track => {
+          responseText.innerHTML += `
+            <div class="song-card">
+              <strong>${track.name}</strong> by ${track.artists || 'Unknown Artist'}<br>
+              Album: ${track.album || 'N/A'}<br>
+              <a href="${track.url}" target="_blank">🎧 Spotify</a> |
+              <a href="${track.youtube}" target="_blank">📺 YouTube</a>
+            </div>
+          `;
+        });
+      });
+    }
+  </script>
+</body>
+</html>

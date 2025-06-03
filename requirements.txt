@@ -1,0 +1,6 @@
+Flask
+tensorflow
+moviepy
+fer
+httpx==0.23.0
+youtubesearchpython
