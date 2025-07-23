@@ -1,5 +1,12 @@
+# Virtual environments
 venv/
-dlbenv/
+dlib-env/
+.env/
+# Python cache
 __pycache__/
-uploads/
 *.pyc
+# IDE files (if using VS Code)
+.vscode/
+# Any specific local config files you don't want to push
+# For example, if you had a local_config.py or settings.local
+*.local
