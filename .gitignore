@@ -9,4 +9,4 @@ __pycache__/
 .vscode/
 # Any specific local config files you don't want to push
 # For example, if you had a local_config.py or settings.local
-*.local
+*.local   
