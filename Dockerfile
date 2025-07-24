@@ -4,9 +4,9 @@ FROM python:3.10-slim
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies for dlib and OpenCV
+# Install system dependencies for dlib, OpenCV, and git
 RUN apt-get update && apt-get install -y \
-    build-essential cmake libopenblas-dev liblapack-dev libx11-dev libgtk-3-dev \
+    build-essential cmake libopenblas-dev liblapack-dev libx11-dev libgtk-3-dev git \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements
