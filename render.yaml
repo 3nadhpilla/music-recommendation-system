@@ -1,6 +1,7 @@
 services:
   - type: web
-    name: your-service-name
-    env: python
-    buildCommand: "./build.sh"
-    # ... other configurations
+    name: webapp
+    env: docker
+    plan: free
+    branch: main
+    healthCheckPath: /
